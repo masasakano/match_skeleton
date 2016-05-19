@@ -1,3 +1,10 @@
 -----
-(Version: 0.1.0) 2016-05-19
+(Version: 1.0.1)
+2016-05-19  Masa Sakano
+ * Fixed a bug pre_match behaves incorrectly when the match starts at the beginning of the string.
+
+-----
+(Version: 1.0.0)
+2016-05-19  Masa Sakano
+
  * First creation.

@@ -320,6 +320,22 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal "T", ms1.pre_match
   end
 
+  def test_pre_match_beg01
+    s = "Beg"
+    md1 = /(.)/.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.pre_match, ms1.pre_match
+    assert_equal "",            ms1.pre_match
+  end
+
+  def test_post_match_end01
+    s = "Beg"
+    md1 = /(.)$/.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.post_match, ms1.post_match
+    assert_equal "",             ms1.post_match
+  end
+
   def test_size01
     s = "THX1138."
     md1 = /(.)(.)(\d+)(\d)/.match(s)

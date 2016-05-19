@@ -34,8 +34,8 @@ class MatchSkeleton
     end
     @string = (string || md.string)
     @regexp = md.regexp
-    @pre_match  = (0..(md.pre_match.size-1))	# {Range}
-    @post_match = ((size_str-md.post_match.size)..(size_str-1))	# {Range}
+    @pre_match  = (0...md.pre_match.size)	# {Range}
+    @post_match = ((size_str-md.post_match.size)...size_str)	# {Range}
 
     # @offsets is Hash with the keys of both Integer and possibly Symbol
     # if names exist.
