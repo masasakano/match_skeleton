@@ -1,0 +1,10 @@
+*.[oa]
+*.so
+*~
+*.nogem
+*nogem.*
+*.bak
+*.BAK
+*.backup
+*.org
+*.orig
