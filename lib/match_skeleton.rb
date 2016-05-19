@@ -42,10 +42,6 @@ class MatchSkeleton
     names  = md.names
     ar_off = (0..(md.size-1)).map do |n|
       ar = md.offset(n)
-#if names[0]=='foo'
-#print "DEBUG: ar=#{ar.inspect}\n"
-#printf "DEBUG: n=(%d)range=%s\n", n, (ar.first...ar.last).inspect
-#end
       (ar.first...ar.last)
     end
     @offsets = {}
@@ -53,11 +49,7 @@ class MatchSkeleton
       @offsets[ei] = ev
       ej = ei - 1
       @offsets[names[ej]] = ev if (ej >= 0 && names[ej])
-#print "DEBUG: names=#{names[ei].inspect}\n"
-#p names[ei], ev
-#p md.offset(:foo)
     end
-#printf "DEBUG: offsets=%s\n", @offsets.inspect if !names.empty?
     
 
     @pos_begin = pos_begin
@@ -86,7 +78,9 @@ class MatchSkeleton
     if j
       to_a[i, j]
     elsif defined?(i.to_sym)
-      values_at(i)[0]
+      i = i.to_s
+      raise IndexError, sprintf("undefined group name reference: %s", i) if !names.include?(i)
+      offset2string(i)
     else
       to_a[i]
     end
@@ -190,10 +184,9 @@ class MatchSkeleton
   #
   # @return [Array]
   def to_a
-#print 'DEBUG: '; p @offsets
     indices = @offsets.keys.sort
     indices.delete_if { |i| !defined?(i.divmod) }
-    indices.map { |i| string[@offsets[i]] }
+    indices.map { |i| offset2string(i) }
   end
 
   # The same as {MatchData#to_s}
@@ -208,11 +201,18 @@ class MatchSkeleton
   # @param *rest [Integer, Symbol, String]
   # @return [Array]
   def values_at(*rest)
+    locary = to_a
     rest.map do |i|
-      key = @offsets[i.to_s]
-#    printf "DEBUG(%s): offsets=%s string=%s i=%s key=%s r=%s\n", __method__, @offsets.inspect,string.inspect,i.inspect,key.inspect,(string[key].inspect rescue 'nil') if !names.empty?
-      raise IndexError, sprintf("undefined group name reference: %s", i) if !key
-      string[key]
+      locary[i]
     end
   end
-end
+
+  ######################### private #########################
+
+  private 
+
+  def offset2string(i)
+    k = @offsets[i]
+    (k.first && k.last) ? string[k] : nil
+  end
+end	# class MatchSkeleton

@@ -1,6 +1,12 @@
 -----
+(Version: 1.0.2)
+2016-05-19  Masa Sakano
+ * Fixed 2 bugs of (1) values_at (2) nil captures.
+
+-----
 (Version: 1.0.1)
 2016-05-19  Masa Sakano
+
  * Fixed a bug pre_match behaves incorrectly when the match starts at the beginning of the string.
 
 -----

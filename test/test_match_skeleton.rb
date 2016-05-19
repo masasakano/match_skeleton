@@ -9,38 +9,36 @@ arlibdir  = %w(match_skeleton)
 arlibbase = ['']	# match_skeleton.rb is read.
 
 arlibbase.each do |elibbase|
-arlibdir.each do |elibdir|
+  arlibdir.each do |elibdir|
 
-  arAllPaths = []
-  er=nil
-  pathnow = nil
-  # (['../lib/', 'lib/', ''].map{|i| i+elibbase+'/'} + ['']).each do |dir|
-  ['../lib', 'lib', ''].each do |dirroot|
-    begin
-      s = [dirroot, elibdir, elibbase].join('/').sub(%r@^/@, '').sub(%r@/$@, '')
-      # eg., %w(../lib/rangeary lib/rangeary rangeary)
-      next if s.empty?
-      arAllPaths.push(s)
-      require s
-      pathnow = s
-      break
-    rescue LoadError => er
+    arAllPaths = []
+    er=nil
+    pathnow = nil
+    ['../lib', 'lib', ''].each do |dirroot|
+      begin
+        # eg., %w(../lib/rangeary lib/rangeary rangeary)
+        s = [dirroot, elibdir, elibbase].join('/').sub(%r@^/@, '').sub(%r@/$@, '')
+        next if s.empty?
+        arAllPaths.push(s)
+        require s
+        pathnow = s
+        break
+      rescue LoadError => er
+      end
+    end	# ['../lib', 'lib', ''].each do |dirroot|
+
+    if pathnow.nil?
+      warn "Warning: All the attempts to load the following files have failed.  Abort..."
+      warn arAllPaths.inspect
+      warn " NOTE: It may be because a require statement in that file failed, rather than requiring the file itself. Check with
+  % ruby -r#{File.basename(elibbase)} -e p
+or maybe add  env RUBYLIB=$RUBYLIB:`pwd`"
+      # p $LOADED_FEATURES.grep(/#{Regexp.quote(File.basename(elibbase)+'.rb')}$/)
+      raise er
+    else
+      arlibrelpath.push pathnow
     end
-  end	# (['../lib/', 'lib/', ''].map{|i| i+elibbase+'/'} + '').each do |dir|
-
-  if pathnow.nil?
-    warn "Warning: All the attempts to load the following files have failed.  Abort..."
-    warn arAllPaths.inspect
-    warn " NOTE: It may be because a require statement in that file failed, 
-rather than requiring the file itself.
- Check with  % ruby -r#{File.basename(elibbase)} -e p
- or maybe add  env RUBYLIB=$RUBYLIB:`pwd`"
-    # p $LOADED_FEATURES.grep(/#{Regexp.quote(File.basename(elibbase)+'.rb')}$/)
-    raise er
-  else
-    arlibrelpath.push pathnow
-  end
-end	# arlibdir.each do |elibdir|
+  end	# arlibdir.each do |elibdir|
 end	# arlibbase.each do |elibbase|
 
 print "NOTE: Library relative paths: "; p arlibrelpath
@@ -206,6 +204,15 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal ["H", "X", "113"], ms1[1..3]
   end
 
+  def test_squarebracket_range_nil
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1[1..3],         ms1[1..3]
+    assert_equal ["ef", nil, "hi"], ms1[1..3]
+  end
+
   def test_squarebracket_name
     s = "ccaaab"
     md1 = /(?<foo>a+)b/.match(s)	#=> #<MatchData "aaab" foo:"aaa">
@@ -216,6 +223,16 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal "aaa",      ms1[:foo]
     assert_raises(IndexError) { md1.begin(:naiyo) }
     assert_raises(IndexError) { ms1.begin(:naiyo) }
+  end
+
+  def test_squarebracket_name_nil01
+    s = "efhi"
+    re = /(?<foo>ef)(?<baa>g)?(?<baz>hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1['foo'], ms1['foo']
+    assert_equal md1['baa'], ms1['baa']
+    assert_equal md1[:baa],  ms1[:baa]
   end
 
   def test_begin_end_int01
@@ -248,6 +265,17 @@ class TestMatchSkeleton < Minitest::Test
     assert_raises(IndexError) { ms1.end(:naiyo) }
   end
 
+  def test_begin_end_nil01
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.begin(2), ms1.begin(2)
+    assert_equal nil,          ms1.begin(2)
+    assert_equal md1.end(2),   ms1.end(2)
+    assert_equal nil,          ms1.end(2)
+  end
+
   def test_captures01
     s ="THX1138."
     md1 = /(.)(.)(\d+)(\d)/.match(s)
@@ -260,6 +288,14 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal ms1.to_a[1..-1], ms1.captures
     assert_equal 'H', ms1.captures[0]
     assert_equal '8', ms1.captures[3]
+  end
+
+  def test_captures_nil01
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.captures, ms1.captures
   end
 
   def test_inspect01
@@ -291,6 +327,19 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal md1.offset(4), ms1.offset(4)
     assert_equal [1, 7], ms1.offset(0)
     assert_equal [6, 7], ms1.offset(4)
+  end
+
+  def test_offset_nil01
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.offset(0), ms1.offset(0)
+    assert_equal md1.offset(1), ms1.offset(1)
+    assert_equal [0, 2],        ms1.offset(1)
+    assert_equal md1.offset(2), ms1.offset(2)
+    assert_equal [nil, nil],    ms1.offset(2)	# (nil..nil)==@offsets[2]
+    assert_equal md1.offset(3), ms1.offset(3)
   end
 
   def test_offset_name01
@@ -354,6 +403,15 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal ["HX1138", "H", "X", "113", "8"], ms1.to_a
   end
 
+  def test_to_a_nil01
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.to_a, ms1.to_a
+    assert_equal ["efhi", "ef", nil, "hi"], ms1.to_a
+  end
+
   def test_to_s01
     s = "THX1138."
     md1 = /(.)(.)(\d+)(\d)/.match(s)
@@ -364,6 +422,16 @@ class TestMatchSkeleton < Minitest::Test
     assert_equal ms1[0], ms1.to_s
   end
 
+  def test_values_at_nil
+    s = "efhi"
+    re = /(ef)(g)?(hi)/
+    md1 = re.match(s)
+    ms1 = MatchSkeleton.new(md1, s)
+    assert_equal md1.values_at(2,3), ms1.values_at(2,3)
+    assert_equal [nil, "hi"],        ms1.values_at(2,3)
+    assert_equal md1.values_at(2),   ms1.values_at(2)
+    assert_raises(TypeError) { ms1.values_at('foo') }
+  end
 end	# class TestMatchSkeleton < Minitest::Test
 
 
