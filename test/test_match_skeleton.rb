@@ -124,11 +124,21 @@ class TestMatchSkeleton < Minitest::Test
     re1 = /g/
     pos = 3
 
+    # Equal with self
     md1 = s.match(re1, pos)
     ms1 = MatchSkeleton.new(md1, s, pos_begin: pos)
     assert_equal true,  (ms1 == md1)
     assert_equal true,  (md1 == ms1)
+    assert_equal true,  (ms1.eql?(ms1))
+    assert_equal true,  (md1.eql?(md1))
     assert_equal false, (ms1.eql?(md1))
+    assert_equal false, (md1.eql?(ms1))
+    # NOTE: Do not use assert() but use assert_equal(false, ...) to test,
+    #   because the result can well be nil, as opposed to false.
+
+    # Equal with something completely different
+    assert_equal false, (md1 == 'random')
+    assert_equal false, (ms1 == 'random')
 
     # pos_begin does not count.
     ms1p = ms1.dup

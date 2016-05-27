@@ -1,6 +1,12 @@
 -----
+(Version: 1.0.3)
+2016-05-27  Masa Sakano
+ * Fixed a bug in #== for both MatchSkeleton and MatchData in lib/match_skeleton.rb and lib/match_skeleton/match_data.rb that it raises NoMethodErro when a completely different object is given as the argument. test/test_match_skeleton.rb is updated to reflect it.
+
+-----
 (Version: 1.0.2)
 2016-05-19  Masa Sakano
+
  * Fixed 2 bugs of (1) values_at (2) nil captures.
 
 -----

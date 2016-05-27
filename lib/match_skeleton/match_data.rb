@@ -14,9 +14,10 @@ class MatchData
   # @param [#string, #regexp, #pre_match] All the methods have to be there. Practically, {MatchSkeleton} and {MatchData}
   # @return [Boolean]
   def ==(obj)
-    (string    == obj.string) &&
-    (regexp    == obj.regexp) &&
-    (pre_match == obj.pre_match)
+    !!((defined?(obj.string)    && string    == obj.string) &&
+       (defined?(obj.regexp)    && regexp    == obj.regexp) &&
+       (defined?(obj.pre_match) && pre_match == obj.pre_match))
+    # nb., defined?() can return nil, and then nil (not false) will be returned.
   end
 
 end
