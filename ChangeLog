@@ -1,4 +1,15 @@
 -----
+(Version: 1.1.0)
+2019-10-29  Masa Sakano
+  * Mainly bug-fix but some significant update.
+  * Fixed RangeError newly raised in Ruby 2.6 (https://rubyreferences.github.io/rubychanges/2.6.html#endless-range-1) in some cases.
+  * Updated .gitignore and deleted doc from the git repository.
+  * Makefile and .github/README.md added. News deleted.
+  * `==` compares post_match as well now.
+  * `.eql?` is not overwritten now and is left as default.
+  * Updating tests accordingly.
+
+-----
 (Version: 1.0.3)
 2016-05-27  Masa Sakano
  * Fixed a bug in #== for both MatchSkeleton and MatchData in lib/match_skeleton.rb and lib/match_skeleton/match_data.rb that it raises NoMethodErro when a completely different object is given as the argument. test/test_match_skeleton.rb is updated to reflect it.

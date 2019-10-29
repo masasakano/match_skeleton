@@ -11,7 +11,7 @@ class MatchData
 
   # Compares with {MatchSkeleton}, in addition to {MatchData}
   #
-  # @param [#string, #regexp, #pre_match] All the methods have to be there. Practically, {MatchSkeleton} and {MatchData}
+  # @param obj [#string, #regexp, #pre_match] All the methods have to be there. Practically, {MatchSkeleton} and {MatchData}
   # @return [Boolean]
   def ==(obj)
     !!((defined?(obj.string)    && string    == obj.string) &&
